@@ -27,25 +27,12 @@ server <- function(input, output, session) {
   species_sc <- unique(biodiversity_data$scientificName)
   species_hm <- unique(biodiversity_data$vernacularName)
 
-  get_species_data_sc <- function(species) {
-    species_loc <- which(biodiversity_data$scientificName == species)
-    if (length(species_loc) > 0) {
-      species_data <- biodiversity_data[species_loc, ]
-      species_data <- species_data[variable_names]
-      species_data <- species_data[
-                                   order(species_data$time,
-                                         decreasing = FALSE), ]
-      species_data$time <- as.character(species_data$time)
+  get_species_data <- function(species, common=TRUE) {
+    if (common) {
+      species_loc <- which(biodiversity_data$vernacularName == species)
     } else {
-      species_data <- data.frame(matrix(ncol = length(variable_names),
-                                        nrow = 0))
-      colnames(species_data) <- variable_names
+      species_loc <- which(biodiversity_data$scientificName == species)
     }
-    return(species_data)
-  }
-
-  get_species_data_hm <- function(species) {
-    species_loc <- which(biodiversity_data$vernacularName == species)
     if (length(species_loc) > 0) {
       species_data <- biodiversity_data[species_loc, ]
       species_data <- species_data[variable_names]
@@ -75,7 +62,7 @@ server <- function(input, output, session) {
   }
 
   observeEvent(input$sc_name, {
-    dataset_sc <- get_species_data_sc(input$sc_name)
+    dataset_sc <- get_species_data(input$sc_name, common = FALSE)
     output$map <- renderLeaflet({
       leaflet(data = dataset_sc) %>%
         addTiles() %>%
@@ -87,7 +74,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$hm_name, {
-    dataset_hm <- get_species_data_hm(input$hm_name)
+    dataset_hm <- get_species_data(input$hm_name, common = TRUE)
     output$map <- renderLeaflet({
       leaflet(data = dataset_hm) %>%
         addTiles() %>%
