@@ -109,7 +109,7 @@ server <- function(input, output, session) {
 
   output$species_hm_selection <- (
     renderUI(selectInput("hm_name",
-                         "Choose a species by human name",
+                         "Choose a species by common name",
                          choices = species_hm,
                          selected = NULL))
   )
